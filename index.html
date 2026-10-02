@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio | Game & Web Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--s1:#6ec3ff;--s2:#ffe3b0;--ink:#1b1b3a;--paper:#fffdf5;--alt:#e8f6ff;--coin:#ffcf33;--pink:#ff5e8a;--mint:#3ddc97;--text:#1b1b3a}
+body[data-theme=night]{--s1:#14103a;--s2:#5a3c8c;--ink:#0c0a24;--paper:#221a4d;--alt:#2b2260;--text:#f3efff}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font-family:Nunito,system-ui,sans-serif;font-weight:600;color:var(--text);background:var(--paper);line-height:1.65;font-size:17px;transition:background .5s,color .5s}
+h1,h2,h3,.px{font-family:"Press Start 2P",monospace;line-height:1.6}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
+.wrap{max-width:980px;margin:0 auto;padding:0 20px}
+.hud{position:sticky;top:0;z-index:9;background:#0c0a24;color:#fff;padding:10px 0;font-size:10px;border-bottom:4px solid var(--pink)}
+.hud .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.hud nav{display:flex;gap:18px}.hud a{text-decoration:none}.hud a:hover{color:var(--coin)}
+.hud button{background:none;border:2px solid #fff;color:#fff;font-size:14px;padding:2px 8px;cursor:pointer}
+.hero{background:linear-gradient(var(--s1),var(--s2));padding:46px 0 0;transition:background .5s}
+.hero h1{font-size:clamp(20px,5.4vw,44px);margin-bottom:12px;color:#fff;text-shadow:4px 4px 0 var(--ink)}
+.hero .role{font-family:"Press Start 2P",monospace;font-size:clamp(10px,2.4vw,15px);color:var(--coin);text-shadow:2px 2px 0 var(--ink);margin-bottom:14px;min-height:1.6em}
+.hero .role i{display:inline-block;width:10px;height:1em;background:var(--coin);vertical-align:middle;animation:b 1s steps(2) infinite}
+.hero p.sub{max-width:580px;font-weight:800;margin-bottom:24px;color:#fff;text-shadow:1px 1px 0 var(--ink)}
+.stage{position:relative;border:5px solid var(--ink);box-shadow:8px 8px 0 var(--ink);background:#000}
+canvas{display:block;width:100%;height:auto;image-rendering:pixelated;touch-action:manipulation}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(12,10,36,.6);color:#fff;text-align:center;padding:10px}
+.overlay[hidden]{display:none}
+.btn{font-family:"Press Start 2P",monospace;font-size:12px;background:var(--coin);color:#1b1b3a;border:4px solid #1b1b3a;padding:12px 16px;cursor:pointer;box-shadow:4px 4px 0 #1b1b3a;text-decoration:none;display:inline-block;transition:transform .1s}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #1b1b3a}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #1b1b3a}
+.btn.alt{background:#fff}
+.hint{font-size:10px;padding:18px 0 28px;font-family:"Press Start 2P",monospace;color:#fff;text-shadow:2px 2px 0 var(--ink);line-height:1.8}
+.grass{height:26px;background:#35a853;border-top:6px solid #5fd57a;box-shadow:inset 0 -8px 0 #2a8a44}
+section{padding:64px 0}
+section:nth-of-type(odd){background:var(--alt)}
+section h2{font-size:clamp(14px,3vw,20px);margin-bottom:30px;display:flex;align-items:center;gap:14px}
+section h2:before{content:"";width:22px;height:30px;background:var(--pink);clip-path:polygon(0 0,100% 25%,0 50%,0 100%,0 100%,0 100%);flex:none}
+.levels{display:grid;gap:28px}
+.level{display:grid;grid-template-columns:210px 1fr;border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);background:var(--paper);transition:transform .15s,box-shadow .15s}
+.level:hover{transform:translate(-3px,-3px);box-shadow:11px 11px 0 var(--ink)}
+.level:nth-child(even){grid-template-columns:1fr 210px}.level:nth-child(even) .art{order:2;border-right:0;border-left:4px solid var(--ink)}
+.art{display:flex;align-items:center;justify-content:center;font-size:58px;min-height:160px;border-right:4px solid var(--ink)}
+.art span{filter:drop-shadow(4px 4px 0 rgba(0,0,0,.25));animation:fl 2.4s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(-8px)}}
+.body{padding:20px 22px}
+.body h3{font-size:12px;margin-bottom:10px}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}
+.tags span{background:var(--ink);color:#fff;font-size:13px;padding:2px 10px;font-weight:800;border:2px solid var(--ink)}
+.links{display:flex;gap:12px;flex-wrap:wrap}.links .btn{font-size:10px;padding:10px 13px}
+.about{display:grid;grid-template-columns:1.1fr 1fr;gap:38px}
+.bars{display:grid;gap:20px}
+.bar .t{display:flex;justify-content:space-between;font-family:"Press Start 2P",monospace;font-size:11px;margin-bottom:7px}
+.track{height:22px;border:4px solid var(--ink);background:rgba(0,0,0,.12);padding:2px}
+.fill{height:100%;width:0;background:repeating-linear-gradient(90deg,var(--pink) 0 12px,#ff9bb7 12px 14px);transition:width 1.2s steps(14)}
+.stat{border:4px solid var(--ink);padding:14px 16px;margin-bottom:14px;background:var(--paper);box-shadow:5px 5px 0 var(--ink)}
+.stat b{font-family:"Press Start 2P",monospace;font-size:10px;display:block;margin-bottom:6px;color:var(--pink)}
+section.cont,section.cont:nth-of-type(odd){background:#0c0a24;color:#fff}
+.cont{background:#0c0a24;color:#fff;text-align:center;padding:80px 0}
+.cont h2{color:var(--coin);justify-content:center;font-size:clamp(16px,4vw,28px)}.cont h2:before{display:none}
+.cont p{margin-bottom:28px}.cont .links{justify-content:center}
+.blink{animation:b 1s steps(2) infinite}
+@keyframes b{50%{opacity:0}}
+footer{background:#0c0a24;color:#8a86b8;text-align:center;padding:0 0 22px;font-size:14px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,120px);background:var(--coin);color:#1b1b3a;border:4px solid #1b1b3a;padding:12px 16px;font-family:"Press Start 2P",monospace;font-size:10px;z-index:20;transition:transform .4s steps(6)}
+.toast.on{transform:translate(-50%,0)}
+@media(max-width:720px){.level,.level:nth-child(even){grid-template-columns:1fr}.level:nth-child(even) .art{order:0;border-left:0}.art{border-right:0;border-bottom:4px solid var(--ink);min-height:110px}.about{grid-template-columns:1fr}.hud nav{gap:10px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body data-theme="day">
+
+<div class="hud px">
+  <div class="wrap">
+    <span id="hudName">PLAYER 1</span>
+    <nav><a href="#levels">LEVELS</a><a href="#skills">STATS</a><a href="#contact">CONTACT</a></nav>
+    <span>COINS <b id="hudCoins">0</b>/10 <button id="themeBtn" aria-label="Switch day and night">🌙</button> <button id="sndBtn" aria-label="Sound on or off">🔊</button></span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <h1 id="heroName">YOUR NAME</h1>
+    <div class="role"><span id="typed"></span><i></i></div>
+    <p class="sub" id="heroSub"></p>
+    <div class="stage">
+      <canvas id="game" width="800" height="260" aria-label="Small jumping game. Press space or tap to jump."></canvas>
+      <div class="overlay" id="ov">
+        <span class="px" id="ovTitle" style="font-size:16px">PRESS START</span>
+        <button class="btn" id="startBtn">START</button>
+      </div>
+    </div>
+    <p class="hint">SPACE OR TAP = JUMP. COLLECT 10 COINS TO UNLOCK A SURPRISE. TRY THE MOON BUTTON TOO.</p>
+  </div>
+  <div class="grass"></div>
+</header>
+
+<section id="levels"><div class="wrap"><h2>SELECT LEVEL: MY PROJECTS</h2><div class="levels" id="levelList"></div></div></section>
+<section id="skills"><div class="wrap"><h2>PLAYER STATS</h2><div class="about"><div class="bars" id="bars"></div><div id="about"></div></div></div></section>
+<section id="contact" class="cont"><div class="wrap"><h2 class="blink">CONTINUE? HIRE ME!</h2><p id="contactLine"></p><div class="links" id="contactLinks"></div></div></section>
+<footer><div class="grass" style="margin-bottom:20px"></div>Built by hand with HTML, CSS and JavaScript.</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   EDIT ONLY THIS BLOCK. Replace everything with your own info.
+   ========================================================= */
+const ME = {
+  name: "Sehrish",
+  role: "Game Developer & Web Developer",
+  intro: "BS-IT student at Emerson University Multan. I build browser games and websites with HTML, CSS, JavaScript and PHP. Try the game below, then pick a level to see my work.",
+  projects: [
+    { icon:"🧠", title:"Memory Match", desc:"Card matching game with card flip logic and win detection. Colourful design that works on desktop and mobile.", tags:["HTML","CSS","JavaScript"], play:"memory.html", code:"https://github.com/sehru143" },
+    { icon:"🐍", title:"Snake Game", desc:"Mobile responsive snake game with combo score and power-ups. Works with swipe, D-pad and keyboard.", tags:["JavaScript","Canvas","CSS"], play:"snake.html", code:"https://github.com/sehru143" },
+    { icon:"🚀", title:"Space Shooter", desc:"Arcade shooter game with moving enemies, bullets and score.", tags:["JavaScript","Canvas","CSS"], play:"shooter.html", code:"https://github.com/sehru143" }
+  ],
+  skills: [["HTML",90],["CSS",80],["JavaScript",80],["PHP",70],["Game Development",75]],
+  about: [
+    ["Class","Game Developer"],
+    ["Special move","Turns an idea into a playable demo fast"],
+    ["Currently","BS-IT student, 3rd semester"]
+  ],
+  email: "sehru0960@gmail.com",
+  github: "https://github.com/sehru143",
+  cv: "Sehrish_CV.pdf"
+};
+/* ========================================================= */
+
+const $ = id => document.getElementById(id);
+document.title = ME.name + " | " + ME.role;
+$("hudName").textContent = ME.name.toUpperCase();
+$("heroName").textContent = ME.name;
+$("heroSub").textContent = ME.intro;
+$("levelList").innerHTML = ME.projects.map((p,i)=>`
+  <article class="level">
+    <div class="art" style="background:${["#ffe27a","#ffb3c7","#a8f0c0","#c9c3ff"][i%4]}" aria-hidden="true"><span>${p.icon}</span></div>
+    <div class="body">
+      <h3>LEVEL ${i+1}: ${p.title}</h3><p>${p.desc}</p>
+      <div class="tags">${p.tags.map(t=>`<span>${t}</span>`).join("")}</div>
+      <div class="links"><a class="btn" href="${p.play}" target="_blank" rel="noopener">PLAY</a><a class="btn alt" href="${p.code}" target="_blank" rel="noopener">CODE</a></div>
+    </div></article>`).join("");
+$("bars").innerHTML = ME.skills.map(s=>`<div class="bar"><div class="t"><span>${s[0]}</span><span>${s[1]}</span></div><div class="track"><div class="fill" data-w="${s[1]}"></div></div></div>`).join("");
+$("about").innerHTML = ME.about.map(a=>`<div class="stat"><b>${a[0]}</b>${a[1]}</div>`).join("");
+$("contactLine").textContent = "Insert coin: send me a message and let's build something.";
+$("contactLinks").innerHTML = `<a class="btn" href="mailto:${ME.email}">EMAIL</a><a class="btn alt" href="${ME.github}" target="_blank" rel="noopener">GITHUB</a><a class="btn alt" href="${ME.cv}" download>DOWNLOAD CV</a>`;
+
+// typewriter
+(function(){let i=0;const t=()=>{$("typed").textContent=ME.role.slice(0,++i);if(i<ME.role.length)setTimeout(t,70)};t()})();
+// skill bars
+new IntersectionObserver((es,o)=>es.forEach(e=>{if(e.isIntersecting){document.querySelectorAll(".fill").forEach(f=>f.style.width=f.dataset.w+"%");o.disconnect()}}),{threshold:.3}).observe($("skills"));
+// toast
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),2600)}
+
+// sound (tiny beeps, no files needed)
+let snd=true,ac;
+function beep(f,d,type="square",v=.05){if(!snd)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.value=v;g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+$("sndBtn").onclick=()=>{snd=!snd;$("sndBtn").textContent=snd?"🔊":"🔇"};
+
+// day / night
+let night=false;
+$("themeBtn").onclick=()=>{night=!night;document.body.dataset.theme=night?"night":"day";$("themeBtn").textContent=night?"☀️":"🌙";draw();toast(night?"NIGHT MODE ON":"DAY MODE ON")};
+
+// ---- game ----
+const cv=$("game"),ctx=cv.getContext("2d"),W=cv.width,H=cv.height,G=215;
+let run=false,coins=0,speed=4,frame=0,things=[],parts=[],won=false;
+const pl={x:80,y:G-30,w:30,h:30,vy:0,on:true};
+const stars=Array.from({length:40},(_,i)=>[(i*97)%W,(i*53)%130,i%3+1]);
+function reset(){coins=0;speed=4;things=[];parts=[];pl.y=G-pl.h;pl.vy=0;pl.on=true;$("hudCoins").textContent=0}
+function jump(){if(run&&pl.on){pl.vy=-13;pl.on=false;beep(520,.12)}}
+function start(){reset();run=true;$("ov").hidden=true;loop()}
+function over(){run=false;beep(150,.4,"sawtooth");$("ovTitle").textContent="GAME OVER";$("startBtn").textContent="TRY AGAIN";$("ov").hidden=false}
+function unlock(){run=false;won=true;[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.2),i*120));$("ovTitle").innerHTML="YOU UNLOCKED IT!<br><br><span style='font-size:11px;line-height:2'>Thanks for playing.<br>Scroll down to see my levels.</span>";$("startBtn").textContent="PLAY AGAIN";$("ov").hidden=false;toast("SECRET UNLOCKED: HIRE ME!");setTimeout(()=>$("levels").scrollIntoView({behavior:"smooth"}),1800)}
+$("startBtn").onclick=start;
+addEventListener("keydown",e=>{if(e.code==="Space"&&run){e.preventDefault();jump()}});
+cv.addEventListener("pointerdown",jump);
+
+function loop(){
+  if(!run)return;
+  frame++;
+  if(frame%68===0){Math.random()<.5?things.push({t:"s",x:W+20,y:G-28,w:28,h:28}):things.push({t:"c",x:W+20,y:G-70-Math.random()*60,w:20,h:20})}
+  speed=4+Math.min(coins*.28,3);
+  pl.vy+=.72;pl.y+=pl.vy;
+  if(pl.y>=G-pl.h){pl.y=G-pl.h;pl.vy=0;pl.on=true}
+  things.forEach(o=>o.x-=speed);
+  things=things.filter(o=>o.x>-40);
+  parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.3;p.l--});parts=parts.filter(p=>p.l>0);
+  for(const o of things){
+    if(!(pl.x<o.x+o.w-5&&pl.x+pl.w>o.x+5&&pl.y<o.y+o.h&&pl.y+pl.h>o.y+5))continue;
+    if(o.t==="s")return over();
+    for(let i=0;i<10;i++)parts.push({x:o.x+10,y:o.y+10,vx:Math.random()*6-3,vy:-Math.random()*5,l:25});
+    o.x=-99;coins++;$("hudCoins").textContent=coins;beep(880,.1);
+    if(coins>=10)return unlock();
+  }
+  draw();requestAnimationFrame(loop);
+}
+function hill(off,base,amp,len,col){ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(0,G);for(let x=0;x<=W;x+=8)ctx.lineTo(x,base-Math.sin((x+off)/len)*amp);ctx.lineTo(W,G);ctx.fill()}
+function draw(){
+  const g=ctx.createLinearGradient(0,0,0,G);
+  g.addColorStop(0,night?"#14103a":"#6ec3ff");g.addColorStop(1,night?"#5a3c8c":"#ffe3b0");
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  if(night){ctx.fillStyle="#fff";stars.forEach(s=>ctx.fillRect(s[0],s[1],s[2],s[2]))}
+  ctx.fillStyle=night?"#f3efff":"#fff176";ctx.beginPath();ctx.arc(690,60,28,0,7);ctx.fill();
+  if(night){ctx.fillStyle="#5a3c8c";ctx.beginPath();ctx.arc(702,52,24,0,7);ctx.fill()}
+  ctx.fillStyle=night?"rgba(255,255,255,.25)":"#fff";
+  for(let i=0;i<3;i++){const x=((i*330-frame*.5)%990+990)%990-90,y=40+i*32;ctx.fillRect(x,y,70,14);ctx.fillRect(x+12,y-10,40,12)}
+  hill(frame*.4,170,22,70,night?"#3b2d78":"#8fd9a8");
+  hill(frame*.9+200,195,18,50,night?"#2d2260":"#4cbf6e");
+  ctx.fillStyle="#35a853";ctx.fillRect(0,G,W,10);ctx.fillStyle="#5fd57a";ctx.fillRect(0,G,W,3);
+  ctx.fillStyle="#7a4a2b";ctx.fillRect(0,G+10,W,H-G);
+  ctx.fillStyle="#5f3a21";for(let x=-((frame*speed)%40);x<W;x+=40){ctx.fillRect(x,G+20,38,3);ctx.fillRect(x+18,G+34,3,12)}
+  // player
+  const px=pl.x,py=pl.y,step=pl.on&&run?Math.floor(frame/6)%2:0;
+  ctx.fillStyle="#1b1b3a";ctx.fillRect(px-3,py-3,pl.w+6,pl.h+3);
+  ctx.fillStyle="#ff5e8a";ctx.fillRect(px,py,pl.w,pl.h-4);
+  ctx.fillStyle="#fff";ctx.fillRect(px+17,py+7,8,8);ctx.fillStyle="#1b1b3a";ctx.fillRect(px+21,py+9,4,4);
+  ctx.fillStyle="#1b1b3a";ctx.fillRect(px+(step?2:12),py+pl.h-5,10,7);ctx.fillRect(px+(step?16:6),py+pl.h-5,10,7);
+  things.forEach(o=>{
+    if(o.t==="s"){ctx.fillStyle="#1b1b3a";ctx.beginPath();ctx.moveTo(o.x-2,o.y+o.h);ctx.lineTo(o.x+o.w/2,o.y-4);ctx.lineTo(o.x+o.w+2,o.y+o.h);ctx.fill();ctx.fillStyle="#ff5e8a";ctx.fillRect(o.x+o.w/2-3,o.y+8,6,6)}
+    else{const w=Math.max(4,Math.abs(Math.cos(frame/8))*o.w);ctx.fillStyle="#1b1b3a";ctx.fillRect(o.x+(o.w-w)/2-2,o.y-2,w+4,o.h+4);ctx.fillStyle="#ffcf33";ctx.fillRect(o.x+(o.w-w)/2,o.y,w,o.h)}
+  });
+  ctx.fillStyle="#ffcf33";parts.forEach(p=>ctx.fillRect(p.x,p.y,4,4));
+}
+reset();draw();
+</script>
+</body>
+</html>
